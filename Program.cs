@@ -1,5 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿
+           
+using System;
 
 namespace TecnoPuntoInventario
 {
@@ -8,83 +9,89 @@ namespace TecnoPuntoInventario
         static void Main(string[] args)
         {
             Console.Title = "Sistema de Inventario - TecnoPunto";
-            List<Producto> inventario = new List<Producto>();
-            const int cantidadProductosARegistrar = 3;
 
-            Console.WriteLine("==================================================");
-            Console.WriteLine("       REGISTRO DE INVENTARIO - TECNOPUNTO        ");
-            Console.WriteLine("==================================================\n");
+            Console.WriteLine("========================================");
+            Console.WriteLine("       REGISTRO DE INVENTARIO");
+            Console.WriteLine("             TECNOPUNTO");
+            Console.WriteLine("========================================");
 
-            // Bucle para registrar al menos 3 productos
-            for (int i = 0; i < cantidadProductosARegistrar; i++)
-            {
-                Console.WriteLine($"\n--- Ingresando datos del Producto #{i + 1} ---");
-                bool productoValido = false;
+            // Registro de los tres productos
+            Producto producto1 = RegistrarProducto(1);
+            Producto producto2 = RegistrarProducto(2);
+            Producto producto3 = RegistrarProducto(3);
 
-                while (!productoValido)
-                {
-                    try
-                    {
-                        Console.Write("Código del producto: ");
-                        string codigo = Console.ReadLine();
+            // Mostrar los productos registrados
+            Console.WriteLine("\n========================================");
+            Console.WriteLine("       RESUMEN DEL INVENTARIO");
+            Console.WriteLine("========================================");
 
-                        Console.Write("Nombre del producto: ");
-                        string nombre = Console.ReadLine();
+            producto1.MostrarInfo();
+            producto2.MostrarInfo();
+            producto3.MostrarInfo();
 
-                        Console.Write("Precio unitario: ");
-                        if (!decimal.TryParse(Console.ReadLine(), out decimal precio))
-                        {
-                            throw new FormatException("El precio debe ser un valor numérico válido.");
-                        }
+            // Sumar el valor de todos los productos
+            decimal valorTotalInventario =
+                producto1.ValorTotal +
+                producto2.ValorTotal +
+                producto3.ValorTotal;
 
-                        Console.Write("Cantidad en existencia: ");
-                        if (!int.TryParse(Console.ReadLine(), out int cantidad))
-                        {
-                            throw new FormatException("La cantidad debe ser un número entero válido.");
-                        }
+            Console.WriteLine("----------------------------------------");
+            Console.WriteLine($"VALOR TOTAL DEL INVENTARIO: {valorTotalInventario:C2}");
+            Console.WriteLine("----------------------------------------");
 
-                        // Se instancia el producto; si algo falla, salta al bloque catch
-                        Producto nuevoProducto = new Producto(codigo, nombre, precio, cantidad);
-                        inventario.Add(nuevoProducto);
-
-                        productoValido = true;
-                        Console.WriteLine("-> ¡Producto registrado exitosamente!");
-                    }
-                    catch (ArgumentException ex)
-                    {
-                        // Captura los errores de validación de las propiedades (nombre vacío, precio <= 0, etc.)
-                        Console.WriteLine($"\n[ERROR DE VALIDACIÓN]: {ex.Message} Intente nuevamente.\n");
-                    }
-                    catch (FormatException ex)
-                    {
-                        // Captura errores cuando se escriben letras en campos numéricos
-                        Console.WriteLine($"\n[ERROR DE FORMATO]: {ex.Message} Intente nuevamente.\n");
-                    }
-                    catch (Exception ex)
-                    {
-                        // Captura cualquier otro error inesperado
-                        Console.WriteLine($"\n[ERROR INESPERADO]: {ex.Message} Intente nuevamente.\n");
-                    }
-                }
-            }
-
-            // Mostrar toda la información de los productos registrados
-            Console.Clear();
-            Console.WriteLine("==================================================");
-            Console.WriteLine("         RESUMEN DE INVENTARIO REGISTRADO         ");
-            Console.WriteLine("==================================================\n");
-
-            decimal valorTotalInventario = 0;
-
-            foreach (Producto prod in inventario)
-            {
-                prod.MostrarInfo();
-                valorTotalInventario += prod.ValorTotal;
-            }
-
-            Console.WriteLine($"\nVALOR TOTAL GENERAL DEL INVENTARIO: {valorTotalInventario:C2}");
             Console.WriteLine("\nPresione cualquier tecla para salir...");
             Console.ReadKey();
         }
+
+        // Solicitar los datos de cada producto
+        static Producto RegistrarProducto(int numero)
+        {
+            while (true)
+            {
+                try
+                {
+                    Console.WriteLine($"\n--- REGISTRO DEL PRODUCTO {numero} ---");
+
+                    Console.Write("Código del producto: ");
+                    string codigo = Console.ReadLine() ?? "";
+
+                    Console.Write("Nombre del producto: ");
+                    string nombre = Console.ReadLine() ?? "";
+
+                    Console.Write("Precio unitario: ");
+                    string entradaPrecio = Console.ReadLine() ?? "";
+
+                    if (!decimal.TryParse(entradaPrecio, out decimal precio))
+                    {
+                        throw new FormatException();
+                    }
+
+                    Console.Write("Cantidad en existencia: ");
+                    string entradaCantidad = Console.ReadLine() ?? "";
+
+                    if (!int.TryParse(entradaCantidad, out int cantidad))
+                    {
+                        throw new FormatException();
+                    }
+
+                    // Crear el producto con los datos introducidos
+                    Producto nuevoProducto = new Producto(
+                        codigo, nombre, precio, cantidad);
+
+                    Console.WriteLine("Producto registrado exitosamente.");
+
+                    return nuevoProducto;
+                }
+                catch (ArgumentException ex)
+                {
+                    Console.WriteLine("\nDato inválido: " + ex.Message);
+                    Console.WriteLine("Intente nuevamente.\n");
+                }
+                catch (FormatException)
+                {
+                    Console.WriteLine("\nDebe introducir un valor numérico válido.");
+                    Console.WriteLine("Intente nuevamente.\n");
+                }
+            }
+        }
     }
-}
